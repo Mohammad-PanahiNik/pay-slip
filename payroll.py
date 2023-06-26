@@ -1,4 +1,7 @@
 from tkinter import *
+from tkinter import filedialog
+import sqlite3 as sql
+from tkinter import messagebox
 
 class Page(Frame):
     def __init__(self, parent, controller):
@@ -17,8 +20,8 @@ class HomePage(Page):
         
         header_menu_lbl = LabelFrame(self,width=1200,height=80,bg='#BEC8CF',bd=5,relief='solid')
         header_menu_txt = Label(self,text='PAYROLL',font=('B Titr',23,'bold'),bg='#BEC8CF')
-        self.btn_list = Button(self,width=400,height=620,image=self.addListBtnImg,bd=0,cursor='hand2',activebackground='#191818', command=lambda: controller.show_page(AboutPage))
-        self.btn_add_personnel = Button(self,width=400,height=620,image=self.addPersonnelImg,bd=0,cursor='hand2',activebackground='#191818')
+        self.btn_list = Button(self,width=400,height=620,image=self.addListBtnImg,bd=0,cursor='hand2',activebackground='#191818')
+        self.btn_add_personnel = Button(self,width=400,height=620,image=self.addPersonnelImg,bd=0,cursor='hand2',activebackground='#191818', command=lambda: controller.show_page(AddPersonnel))
         self.btn_payroll = Button(self,width=400,height=620,image=self.payroll_img,bd=0,cursor='hand2',activebackground='#191818')
         header_menu_txt.place(x=510,y=15)
         header_menu_lbl.place(x=0,y=0)
@@ -26,7 +29,7 @@ class HomePage(Page):
         self.btn_add_personnel.place(x=400,y=80)
         self.btn_payroll.place(x=800,y=80)
 
-class AboutPage(Page):
+class AddPersonnel(Page):
     def __init__(self, parent, controller):
         Page.__init__(self, parent, controller)
         self.saveInfo = PhotoImage(file='images/zakhireInfoBtn.png')
@@ -47,7 +50,7 @@ class AboutPage(Page):
         self.entContractType = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
         self.entSofContract = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
         self.entEofContract = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
-        self.btnSaveInfo = Button(bgRegister,image=self.saveInfo,bg='#EAEAEA',bd=0,activebackground='#EAEAEA',cursor='hand2',command=lambda: controller.show_page(ContactPage))
+        self.btnSaveInfo = Button(bgRegister,image=self.saveInfo,bg='#EAEAEA',bd=0,activebackground='#EAEAEA',cursor='hand2',command=self.funcSaveInfo)
         button = Button(self, text="رفتن به تماس با ما", command=lambda: controller.show_page(ContactPage))
         
         button.place(x=250,y=500)
@@ -57,9 +60,9 @@ class AboutPage(Page):
         self.entNameRegister.place(x=655,y=183)
         self.entNationalCode.place(x=655,y=247)
         self.entFather.place(x=655,y=311)
-        self.entBorn.place(x=655,y=375)
-        self.entShenasname.place(x=655,y=439)
-        self.entChildren.place(x=655,y=503)
+        self.entChildren.place(x=655,y=375)
+        self.entBorn.place(x=655,y=439)
+        self.entShenasname.place(x=655,y=503)
         self.entMaritalStatus.place(x=135,y=183)
         self.entPhone.place(x=135,y=247)
         self.entSalaryBase.place(x=135,y=311)
@@ -72,20 +75,62 @@ class AboutPage(Page):
         self.entPersonnelID.bind('<Return>',lambda event :self.entNameRegister.focus())
         self.entNameRegister.bind('<Return>',lambda event :self.entNationalCode.focus())
         self.entNationalCode.bind('<Return>',lambda event :self.entFather.focus())
-        self.entFather.bind('<Return>',lambda event :self.entBorn.focus())
+        self.entFather.bind('<Return>',lambda event :self.entChildren.focus())
+        self.entChildren.bind('<Return>',lambda event :self.entBorn.focus())
         self.entBorn.bind('<Return>',lambda event :self.entShenasname.focus())
-        self.entShenasname.bind('<Return>',lambda event :self.entChildren.focus())
-        self.entChildren.bind('<Return>',lambda event :self.entMaritalStatus.focus())
+        self.entShenasname.bind('<Return>',lambda event :self.entMaritalStatus.focus())
         self.entMaritalStatus.bind('<Return>',lambda event :self.entPhone.focus())
         self.entPhone.bind('<Return>',lambda event :self.entSalaryBase.focus())
         self.entSalaryBase.bind('<Return>',lambda event :self.entContractType.focus())
         self.entContractType.bind('<Return>',lambda event :self.entSofContract.focus())
         self.entSofContract.bind('<Return>',lambda event :self.entEofContract.focus())
         self.entEofContract.bind('<Return>',lambda event :self.btnSaveInfo.focus())
-        # self.btnSaveInfo.bind('<Return>',self.funcSaveInfo)
+        self.btnSaveInfo.bind('<Return>',self.funcSaveInfo)
         # self.btnSaveInfo.bind('<Button-1>',self.funcSaveInfo)
         # self.jayAks.bind('<Button-1>',self.funcAks)
 
+    def funcSaveInfo(self,event=None):
+        PersonnelID = self.entPersonnelID.get()
+        NameRegister = self.entNameRegister.get()
+        NationalCode = self.entNationalCode.get()
+        Father = self.entFather.get()
+        Born = self.entBorn.get()
+        Shenasname = self.entShenasname.get()
+        Children = self.entChildren.get()
+        MaritalStatus = self.entMaritalStatus.get()
+        Phone = self.entPhone.get()
+        SalaryBase = self.entSalaryBase.get()
+        ContractType = self.entContractType.get()
+        SofContract = self.entSofContract.get()
+        EofContract = self.entEofContract.get()
+        
+        self.con=sql.connect('mydb.db')
+        self.cur=self.con.cursor()
+        data=(PersonnelID,NameRegister,NationalCode,Father,Born,Shenasname,Children,MaritalStatus,Phone,
+                        SalaryBase,ContractType,SofContract,EofContract)
+        self.cur.execute('''CREATE TABLE IF NOT EXISTS user (id TEXT PRIMARY KEY,name TEXT,nationalId TEXT,father TEXT
+                         ,born TEXT,shenasname TEXT,children TEXT,marital_status TEXT,phone TEXT,salary_base TEXT,
+                         contract_type TEXT,start_of_contract TEXT,end_of_contract TEXT)''')
+        self.cur.execute('''INSERT INTO user(id,name,nationalId,father,born,shenasname,children,marital_status,phone
+                         ,salary_base,contract_type,start_of_contract,end_of_contract) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)''',data)
+        self.con.commit()
+        
+        self.entPersonnelID.delete(0,END)
+        self.entNameRegister.delete(0,END)
+        self.entNationalCode.delete(0,END)
+        self.entFather.delete(0,END)
+        self.entBorn.delete(0,END)
+        self.entShenasname.delete(0,END)
+        self.entChildren.delete(0,END)
+        self.entMaritalStatus.delete(0,END)
+        self.entPhone.delete(0,END)
+        self.entSalaryBase.delete(0,END)
+        self.entContractType.delete(0,END)
+        self.entSofContract.delete(0,END)
+        self.entEofContract.delete(0,END)
+        self.entPersonnelID.focus()
+        
+    
 class ContactPage(Page):
     def __init__(self, parent, controller):
         Page.__init__(self, parent, controller)
@@ -106,7 +151,7 @@ class MyApp(Tk):
         self.pages = {}
         self.current_page = None
 
-        for PageClass in (HomePage, AboutPage, ContactPage):
+        for PageClass in (HomePage, AddPersonnel, ContactPage):
             page = PageClass(container, self)
             self.pages[PageClass] = page
             page.grid(row=0, column=0, sticky="nsew")
