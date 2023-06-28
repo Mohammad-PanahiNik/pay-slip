@@ -21,8 +21,10 @@ class HomePage(Page):
         header_menu_lbl = LabelFrame(self,width=1200,height=80,bg='#BEC8CF',bd=5,relief='solid')
         header_menu_txt = Label(self,text='PAYROLL',font=('B Titr',23,'bold'),bg='#BEC8CF')
         self.btn_list = Button(self,width=400,height=620,image=self.addListBtnImg,bd=0,cursor='hand2',activebackground='#191818')
-        self.btn_add_personnel = Button(self,width=400,height=620,image=self.addPersonnelImg,bd=0,cursor='hand2',activebackground='#191818', command=lambda: controller.show_page(AddPersonnel))
-        self.btn_payroll = Button(self,width=400,height=620,image=self.payroll_img,bd=0,cursor='hand2',activebackground='#191818')
+        self.btn_add_personnel = Button(self,width=400,height=620,image=self.addPersonnelImg,bd=0,cursor='hand2',activebackground='#191818',
+                                        command=lambda: controller.show_page(AddPersonnel))
+        self.btn_payroll = Button(self,width=400,height=620,image=self.payroll_img,bd=0,cursor='hand2',activebackground='#191818',
+                                  command=lambda: controller.show_page(Payslip))
         header_menu_txt.place(x=510,y=15)
         header_menu_lbl.place(x=0,y=0)
         self.btn_list.place(x=0,y=80)
@@ -51,9 +53,7 @@ class AddPersonnel(Page):
         self.entSofContract = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
         self.entEofContract = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
         self.btnSaveInfo = Button(bgRegister,image=self.saveInfo,bg='#EAEAEA',bd=0,activebackground='#EAEAEA',cursor='hand2',command=self.funcSaveInfo)
-        button = Button(self, text="رفتن به تماس با ما", command=lambda: controller.show_page(ContactPage))
         
-        button.place(x=250,y=500)
         bgRegister.place(x=12,y=10)
         self.jayAks.place(x=40,y=30)
         self.entPersonnelID.place(x=825,y=82)
@@ -131,11 +131,59 @@ class AddPersonnel(Page):
         self.entPersonnelID.focus()
         
     
-class ContactPage(Page):
+class Payslip(Page):
     def __init__(self, parent, controller):
-        Page.__init__(self, parent, controller)
-        label = Label(self, text="تماس با ما")
-        label.pack()
+        Page.__init__(self, parent, controller)        
+        self.PaySlipBg=PhotoImage(file='images/payslipBg1.png')
+        self.searchBtn=PhotoImage(file='images/searchBtn.png')
+        self.homeImg=PhotoImage(file='images/homeImg.png')
+        self.issuanceImg=PhotoImage(file='images/issuanceImg.png')
+        
+
+        bgpayslip=Label(self,image=self.PaySlipBg,bg='#B2B2B2')
+        entSearchId=Entry(bgpayslip,font=('tahoma',13),bg='#B2B2B2',fg='#3C4048',bd=0)
+        btnSearch=Button(bgpayslip,image=self.searchBtn,bg='#EAEAEA',activebackground='#EAEAEA',bd=0,cursor='hand2')
+        frmPs=LabelFrame(bgpayslip,bg='#EAEAEA',bd=0)
+        lblNamePS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
+        lblnationalPS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
+        lblPhonePS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
+        lblMaritalPS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
+        lblChildPS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
+
+        entDays=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
+        entDate=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
+        entOvertime=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
+        entHClosing=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
+        entNightWork=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
+        btnissuance=Button(bgpayslip,image=self.issuanceImg,bg='#EAEAEA',bd=0,activebackground='#EAEAEA',cursor='hand2')
+        homeBtnPs=Button(bgpayslip,image=self.homeImg,bg='#EAEAEA',activebackground='#EAEAEA',bd=0,cursor='hand2')
+        
+        # entSearchId.bind('<Return>',lambda event :funcSearch())
+        entSearchId.focus()
+        entDays.bind('<Return>',lambda event :entDate.focus())
+        entDate.bind('<Return>',lambda event :entOvertime.focus())
+        entOvertime.bind('<Return>',lambda event :entHClosing.focus())
+        entHClosing.bind('<Return>',lambda event :entNightWork.focus())
+        # entNightWork.bind('<Return>',lambda event :funcIssuance())
+
+        
+        bgpayslip.place(x=20,y=29)
+        entSearchId.place(x=488,y=100)
+        btnSearch.place(x=505,y=147)
+        frmPs.place(x=745,y=295)
+        lblNamePS.grid(row=1,pady=13)
+        lblnationalPS.grid(row=2,pady=13)
+        lblPhonePS.grid(row=3,pady=13)
+        lblMaritalPS.grid(row=4,pady=13)
+        lblChildPS.grid(row=5,pady=13)
+        entDays.place(x=188,y=324)
+        entDate.place(x=188,y=372)
+        entOvertime.place(x=188,y=419)
+        entHClosing.place(x=188,y=467)
+        entNightWork.place(x=188,y=514)
+        btnissuance.place(x=261,y=563)
+        homeBtnPs.place(x=20,y=20)
+
         button = Button(self, text="رفتن به صفحه اصلی", command=lambda: controller.show_page(HomePage))
         button.pack()
 
@@ -151,7 +199,7 @@ class MyApp(Tk):
         self.pages = {}
         self.current_page = None
 
-        for PageClass in (HomePage, AddPersonnel, ContactPage):
+        for PageClass in (HomePage, AddPersonnel, Payslip):
             page = PageClass(container, self)
             self.pages[PageClass] = page
             page.grid(row=0, column=0, sticky="nsew")
