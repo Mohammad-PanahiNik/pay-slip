@@ -34,9 +34,12 @@ class HomePage(Page):
 class AddPersonnel(Page):
     def __init__(self, parent, controller):
         Page.__init__(self, parent, controller)
+        self.configure(bg='#B2B2B2')
         self.saveInfo = PhotoImage(file='images/zakhireInfoBtn.png')
         self.bgRegisterImg = PhotoImage(file='images/bgregister.png')
+        self.homeImg=PhotoImage(file='images/homeImg.png')
         self.profileImg = PhotoImage(file='images/profile.png')
+
         bgRegister = Label(self,image=self.bgRegisterImg,bg='#B2B2B2')
         self.jayAks = Label(bgRegister,image=self.profileImg,bd=2)
         self.entPersonnelID = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
@@ -53,6 +56,8 @@ class AddPersonnel(Page):
         self.entSofContract = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
         self.entEofContract = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
         self.btnSaveInfo = Button(bgRegister,image=self.saveInfo,bg='#EAEAEA',bd=0,activebackground='#EAEAEA',cursor='hand2',command=self.funcSaveInfo)
+        homeBtnPs=Button(bgRegister,image=self.homeImg,bg='#EAEAEA',activebackground='#EAEAEA',bd=0,cursor='hand2',
+                         command=lambda: controller.show_page(HomePage))
         
         bgRegister.place(x=12,y=10)
         self.jayAks.place(x=40,y=30)
@@ -70,6 +75,7 @@ class AddPersonnel(Page):
         self.entSofContract.place(x=135,y=439)
         self.entEofContract.place(x=135,y=503)
         self.btnSaveInfo.place(x=450,y=575)
+        homeBtnPs.place(x=1105,y=15)
         
         self.entPersonnelID.focus()
         self.entPersonnelID.bind('<Return>',lambda event :self.entNameRegister.focus())
@@ -134,59 +140,80 @@ class AddPersonnel(Page):
 class Payslip(Page):
     def __init__(self, parent, controller):
         Page.__init__(self, parent, controller)        
+        self.configure(bg='#B2B2B2')
         self.PaySlipBg=PhotoImage(file='images/payslipBg1.png')
         self.searchBtn=PhotoImage(file='images/searchBtn.png')
         self.homeImg=PhotoImage(file='images/homeImg.png')
         self.issuanceImg=PhotoImage(file='images/issuanceImg.png')
-        
 
         bgpayslip=Label(self,image=self.PaySlipBg,bg='#B2B2B2')
-        entSearchId=Entry(bgpayslip,font=('tahoma',13),bg='#B2B2B2',fg='#3C4048',bd=0)
-        btnSearch=Button(bgpayslip,image=self.searchBtn,bg='#EAEAEA',activebackground='#EAEAEA',bd=0,cursor='hand2')
+        self.entSearchId=Entry(bgpayslip,font=('tahoma',13),bg='#B2B2B2',fg='#3C4048',bd=0)
+        btnSearch=Button(bgpayslip,image=self.searchBtn,bg='#EAEAEA',activebackground='#EAEAEA',bd=0,cursor='hand2',command=self.searchId)
         frmPs=LabelFrame(bgpayslip,bg='#EAEAEA',bd=0)
-        lblNamePS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
-        lblnationalPS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
-        lblPhonePS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
-        lblMaritalPS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
-        lblChildPS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
+        self.lblNamePS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
+        self.lblnationalPS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
+        self.lblPhonePS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
+        self.lblMaritalPS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
+        self.lblChildPS=Label(frmPs,text='',fg='#3C4048',font=('tahoma',15),bg='#EAEAEA')
 
-        entDays=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
-        entDate=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
-        entOvertime=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
-        entHClosing=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
-        entNightWork=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
+        self.entDays=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
+        self.entDate=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
+        self.entOvertime=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
+        self.entHClosing=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
+        self.entNightWork=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
         btnissuance=Button(bgpayslip,image=self.issuanceImg,bg='#EAEAEA',bd=0,activebackground='#EAEAEA',cursor='hand2')
-        homeBtnPs=Button(bgpayslip,image=self.homeImg,bg='#EAEAEA',activebackground='#EAEAEA',bd=0,cursor='hand2')
+        homeBtnPs=Button(bgpayslip,image=self.homeImg,bg='#EAEAEA',activebackground='#EAEAEA',bd=0,cursor='hand2',
+                         command=lambda: controller.show_page(HomePage))
         
         # entSearchId.bind('<Return>',lambda event :funcSearch())
-        entSearchId.focus()
-        entDays.bind('<Return>',lambda event :entDate.focus())
-        entDate.bind('<Return>',lambda event :entOvertime.focus())
-        entOvertime.bind('<Return>',lambda event :entHClosing.focus())
-        entHClosing.bind('<Return>',lambda event :entNightWork.focus())
+        self.entSearchId.focus()
+        self.entDays.bind('<Return>',lambda event :self.entDate.focus())
+        self.entDate.bind('<Return>',lambda event :self.entOvertime.focus())
+        self.entOvertime.bind('<Return>',lambda event :self.entHClosing.focus())
+        self.entHClosing.bind('<Return>',lambda event :self.entNightWork.focus())
         # entNightWork.bind('<Return>',lambda event :funcIssuance())
 
         
         bgpayslip.place(x=20,y=29)
-        entSearchId.place(x=488,y=100)
+        self.entSearchId.place(x=488,y=100)
         btnSearch.place(x=505,y=147)
         frmPs.place(x=745,y=295)
-        lblNamePS.grid(row=1,pady=13)
-        lblnationalPS.grid(row=2,pady=13)
-        lblPhonePS.grid(row=3,pady=13)
-        lblMaritalPS.grid(row=4,pady=13)
-        lblChildPS.grid(row=5,pady=13)
-        entDays.place(x=188,y=324)
-        entDate.place(x=188,y=372)
-        entOvertime.place(x=188,y=419)
-        entHClosing.place(x=188,y=467)
-        entNightWork.place(x=188,y=514)
+        self.lblNamePS.grid(row=1,pady=13)
+        self.lblnationalPS.grid(row=2,pady=13)
+        self.lblPhonePS.grid(row=3,pady=13)
+        self.lblMaritalPS.grid(row=4,pady=13)
+        self.lblChildPS.grid(row=5,pady=13)
+        self.entDays.place(x=188,y=324)
+        self.entDate.place(x=188,y=372)
+        self.entOvertime.place(x=188,y=419)
+        self.entHClosing.place(x=188,y=467)
+        self.entNightWork.place(x=188,y=514)
         btnissuance.place(x=261,y=563)
-        homeBtnPs.place(x=20,y=20)
+        homeBtnPs.place(x=1090,y=15)
+        
+    def searchId(self):
+        Id=self.entSearchId.get()
+        self.con=sql.connect('mydb.db')
+        self.cur=self.con.cursor()
+        self.count=0
+        if Id !='':
+            row=self.cur.execute('SELECT * FROM user WHERE id="{}"'.format(Id))
+            info=list(row)
+            self.lblNamePS['text']=info[0][1]
+            self.lblnationalPS['text']=info[0][2]
+            self.lblPhonePS['text']=info[0][8]
+            self.lblMaritalPS['text']=info[0][7]
+            self.lblChildPS['text']=info[0][6]
+            self.entDays.focus()
 
-        button = Button(self, text="رفتن به صفحه اصلی", command=lambda: controller.show_page(HomePage))
-        button.pack()
-
+    def issuanceFunc(self):
+    self.days=self.entDays.get()
+    self.date=self.entDate.get()
+    self.overtime=self.entOvertime.get()
+    self.closing=self.entHClosing.get()
+    self.nightWork=self.entNightWork.get()
+    self.id2=self.entSearchId.get()
+            
 class MyApp(Tk):
     def __init__(self):
         Tk.__init__(self)
