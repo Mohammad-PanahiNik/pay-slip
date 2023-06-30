@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import filedialog
 import sqlite3 as sql
+from tkinter import ttk
 from tkinter import messagebox
 
 class Page(Frame):
@@ -20,7 +21,8 @@ class HomePage(Page):
         
         header_menu_lbl = LabelFrame(self,width=1200,height=80,bg='#BEC8CF',bd=5,relief='solid')
         header_menu_txt = Label(self,text='PAYROLL',font=('B Titr',23,'bold'),bg='#BEC8CF')
-        self.btn_list = Button(self,width=400,height=620,image=self.addListBtnImg,bd=0,cursor='hand2',activebackground='#191818')
+        self.btn_list = Button(self,width=400,height=620,image=self.addListBtnImg,bd=0,cursor='hand2',activebackground='#191818',
+                               command=self.open_list)
         self.btn_add_personnel = Button(self,width=400,height=620,image=self.addPersonnelImg,bd=0,cursor='hand2',activebackground='#191818',
                                         command=lambda: controller.show_page(AddPersonnel))
         self.btn_payroll = Button(self,width=400,height=620,image=self.payroll_img,bd=0,cursor='hand2',activebackground='#191818',
@@ -30,6 +32,10 @@ class HomePage(Page):
         self.btn_list.place(x=0,y=80)
         self.btn_add_personnel.place(x=400,y=80)
         self.btn_payroll.place(x=800,y=80)
+
+    def open_list(self):
+        self.data_to_list_personnel()
+        self.controller.show_page(PersonnelList)
 
 class AddPersonnel(Page):
     def __init__(self, parent, controller):
@@ -55,7 +61,8 @@ class AddPersonnel(Page):
         self.entContractType = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
         self.entSofContract = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
         self.entEofContract = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
-        self.btnSaveInfo = Button(bgRegister,image=self.saveInfo,bg='#EAEAEA',bd=0,activebackground='#EAEAEA',cursor='hand2',command=self.funcSaveInfo)
+        self.btnSaveInfo = Button(bgRegister,image=self.saveInfo,bg='#EAEAEA',bd=0,activebackground='#EAEAEA',cursor='hand2',
+                                  command=self.funcSaveInfo)
         homeBtnPs=Button(bgRegister,image=self.homeImg,bg='#EAEAEA',activebackground='#EAEAEA',bd=0,cursor='hand2',
                          command=lambda: controller.show_page(HomePage))
         
@@ -114,10 +121,10 @@ class AddPersonnel(Page):
         self.cur=self.con.cursor()
         data=(PersonnelID,NameRegister,NationalCode,Father,Born,Shenasname,Children,MaritalStatus,Phone,
                         SalaryBase,ContractType,SofContract,EofContract)
-        self.cur.execute('''CREATE TABLE IF NOT EXISTS user (id TEXT PRIMARY KEY,name TEXT,nationalId TEXT,father TEXT
+        self.cur.execute('''CREATE TABLE IF NOT EXISTS personnel (id TEXT PRIMARY KEY,name TEXT,nationalId TEXT,father TEXT
                          ,born TEXT,shenasname TEXT,children TEXT,marital_status TEXT,phone TEXT,salary_base TEXT,
                          contract_type TEXT,start_of_contract TEXT,end_of_contract TEXT)''')
-        self.cur.execute('''INSERT INTO user(id,name,nationalId,father,born,shenasname,children,marital_status,phone
+        self.cur.execute('''INSERT INTO personnel(id,name,nationalId,father,born,shenasname,children,marital_status,phone
                          ,salary_base,contract_type,start_of_contract,end_of_contract) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)''',data)
         self.con.commit()
         
@@ -139,7 +146,7 @@ class AddPersonnel(Page):
     
 class Payslip(Page):
     def __init__(self, parent, controller):
-        Page.__init__(self, parent, controller)        
+        Page.__init__(self, parent, controller)
         self.configure(bg='#B2B2B2')
         self.PaySlipBg=PhotoImage(file='images/payslipBg1.png')
         self.searchBtn=PhotoImage(file='images/searchBtn.png')
@@ -161,9 +168,10 @@ class Payslip(Page):
         self.entOvertime=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
         self.entHClosing=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
         self.entNightWork=Entry(bgpayslip,fg='#3C4048',font=('tahoma',13),bg='#B2B2B2',bd=0)
-        btnissuance=Button(bgpayslip,image=self.issuanceImg,bg='#EAEAEA',bd=0,activebackground='#EAEAEA',cursor='hand2')
+        btnissuance=Button(bgpayslip,image=self.issuanceImg,bg='#EAEAEA',bd=0,activebackground='#EAEAEA',cursor='hand2',
+                           command=self.issuanceFunc)
         homeBtnPs=Button(bgpayslip,image=self.homeImg,bg='#EAEAEA',activebackground='#EAEAEA',bd=0,cursor='hand2',
-                         command=lambda: controller.show_page(HomePage))
+                            command=lambda: controller.show_page(HomePage))
         
         # entSearchId.bind('<Return>',lambda event :funcSearch())
         self.entSearchId.focus()
@@ -197,7 +205,7 @@ class Payslip(Page):
         self.cur=self.con.cursor()
         self.count=0
         if Id !='':
-            row=self.cur.execute('SELECT * FROM user WHERE id="{}"'.format(Id))
+            row=self.cur.execute('SELECT * FROM personnel WHERE id="{}"'.format(Id))
             info=list(row)
             self.lblNamePS['text']=info[0][1]
             self.lblnationalPS['text']=info[0][2]
@@ -207,13 +215,112 @@ class Payslip(Page):
             self.entDays.focus()
 
     def issuanceFunc(self):
-    self.days=self.entDays.get()
-    self.date=self.entDate.get()
-    self.overtime=self.entOvertime.get()
-    self.closing=self.entHClosing.get()
-    self.nightWork=self.entNightWork.get()
-    self.id2=self.entSearchId.get()
-            
+        self.days=self.entDays.get()
+        self.date=self.entDate.get()
+        self.overtime=self.entOvertime.get()
+        self.closing=self.entHClosing.get()
+        self.nightWork=self.entNightWork.get()
+        self.id2=self.entSearchId.get()
+        self.controller.show_page(Payslip2)
+        
+        
+
+class Payslip2(Page):
+    def __init__(self, parent, controller):
+        Page.__init__(self, parent, controller)
+        self.configure(bg='#B2B2B2')
+        
+        self.PaySlip2Bg=PhotoImage(file='images/bgpaySlip2.png')
+        self.printImg=PhotoImage(file='images/printImg.png')  
+        
+        bgPaySlip2=Label(self,image=self.PaySlip2Bg,bg='#B2B2B2')
+        self.lblNamePSP2=Label(bgPaySlip2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblpersonnelIdPSP2=Label(bgPaySlip2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblbime=Label(bgPaySlip2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblHaghBimeK=Label(bgPaySlip2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblHaghBimeR=Label(bgPaySlip2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.dailyWage=Label(bgPaySlip2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.hourlyWage=Label(bgPaySlip2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblBonRefahi=Label(bgPaySlip2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblHaghMskn=Label(bgPaySlip2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.btnPrint=Button(self,image=self.printImg,bg='#B2B2B2',bd=0,activebackground='#525252',cursor='hand2')
+        frmPs2=LabelFrame(bgPaySlip2,bg='#EAEAEA',bd=0)
+        self.lblDays=Label(frmPs2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblDate=Label(frmPs2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblOvertime=Label(frmPs2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblHClosing=Label(frmPs2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblNightWork=Label(frmPs2,fg='#333333',font=('tahoma',15),bg='#EAEAEA',text='')
+        self.lblKosorat=Label(self,text='',fg='#333333',font=('tahoma',24),bg='#EAEAEA')
+        self.lblDaramad=Label(self,text='',fg='#333333',font=('tahoma',24),bg='#EAEAEA')
+        self.pardakhti=Label(self,text='',fg='#EAEAEA',font=('tahoma',24),bg='#3C4048')
+        
+        bgPaySlip2.place(x=20,y=10)
+        self.lblNamePSP2.place(x=600,y=19)
+        self.lblpersonnelIdPSP2.place(x=250,y=19)
+        self.lblbime.place(x=620,y=110)
+        self.lblHaghBimeK.place(x=620,y=180)
+        self.lblHaghBimeR.place(x=620,y=250)
+        self.dailyWage.place(x=50,y=95)
+        self.hourlyWage.place(x=50,y=152)
+        self.lblBonRefahi.place(x=50,y=212)
+        self.lblHaghMskn.place(x=50,y=270)
+        self.btnPrint.place(x=525,y=642)
+        self.lblKosorat.place(x=70,y=390)
+        self.lblDaramad.place(x=70,y=460)
+        self.pardakhti.place(x=70,y=555)
+        frmPs2.place(x=620,y=400)
+        self.lblDays.grid(row=1,pady=6)
+        self.lblDate.grid(row=2,pady=6)
+        self.lblOvertime.grid(row=3,pady=6)
+        self.lblHClosing.grid(row=4,pady=6)
+        self.lblNightWork.grid(row=5,pady=6)
+
+class PersonnelList(Page):
+    def __init__(self, parent, controller):
+        Page.__init__(self, parent, controller)
+        self.configure(bg='#B2B2B2')
+        self.style=ttk.Style()
+        
+        #list
+        self.list_personnel= ttk.Treeview(self,show='headings',height=15)
+        self.list_personnel['columns']=('e_contract','s_contract','Phone','NationalId','Name','id','row')
+        #columns
+        self.list_personnel.column('e_contract',width=170,anchor=E)
+        self.list_personnel.column('s_contract',width=170,anchor=E)
+        self.list_personnel.column('Phone',width=200,anchor=E)
+        self.list_personnel.column('NationalId',width=200,anchor=E)
+        self.list_personnel.column('Name',width=200,anchor=E)
+        self.list_personnel.column('id',width=120,anchor=E)
+        self.list_personnel.column('row',width=100,anchor=E)
+        #heading
+        self.list_personnel.heading('e_contract',text=' : پایان قرارداد',anchor=E)
+        self.list_personnel.heading('s_contract',text=' : شروع قرارداد',anchor=E)
+        self.list_personnel.heading('Phone',text=' : شماره موبایل',anchor=E)
+        self.list_personnel.heading('NationalId',text=' : کد ملی',anchor=E)
+        self.list_personnel.heading('Name',text=' : نام و نام خانوادگی',anchor=E)
+        self.list_personnel.heading('id',text=' : کد کارمند',anchor=E)
+        self.list_personnel.heading('row',text=' : ردیف',anchor=E)
+        self.style.theme_use('clam')
+        self.style.configure("Treeview.Heading",font=('Lalezar', 18),
+                            padding=[0, 5, 15, 5],background='#474A56',
+                            foreground="white",bd=0,relief='raised'
+                            )
+        self.style.map("Treeview.Heading",
+            background=[('active','#686A75')])
+        self.style.configure("Treeview", highlightthickness=0, 
+                            height=150,
+                            bd=0, font=('AraFProgram', 16),
+                            background="white",foreground="black",
+                            rowheight = 35,fieldbackground="white"
+                            )
+        self.style.map("Treeview",
+            background=[('selected', '#7A8BA7')],
+            foreground=[('selected', 'white')])
+        
+        
+        self.list_personnel.place(x=20,y=70)
+        
+
 class MyApp(Tk):
     def __init__(self):
         Tk.__init__(self)
@@ -226,7 +333,7 @@ class MyApp(Tk):
         self.pages = {}
         self.current_page = None
 
-        for PageClass in (HomePage, AddPersonnel, Payslip):
+        for PageClass in (HomePage, AddPersonnel, Payslip, Payslip2, PersonnelList):
             page = PageClass(container, self)
             self.pages[PageClass] = page
             page.grid(row=0, column=0, sticky="nsew")
