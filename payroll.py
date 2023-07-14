@@ -35,9 +35,8 @@ class HomePage(Page):
         self.btn_payslip.place(x=800,y=80)
 
     def open_list(self):
-        # self.personnel_P.data_to_list_personnel()
-        about_page = self.controller.pages[PersonnelList]
-        about_page.data_to_list_personnel()
+        personnelListP = self.controller.pages[PersonnelList]
+        personnelListP.data_to_list_personnel()
         self.controller.show_page(PersonnelList)
 
 class AddPersonnel(Page):
@@ -150,6 +149,7 @@ class AddPersonnel(Page):
 class Payslip(Page):
     def __init__(self, parent, controller):
         Page.__init__(self, parent, controller)
+        self.payeHoghogh=0
         self.configure(bg='#B2B2B2')
         self.PaySlipBg=PhotoImage(file='images/payslipBg1.png')
         self.searchBtn=PhotoImage(file='images/searchBtn.png')
@@ -215,16 +215,63 @@ class Payslip(Page):
             self.lblPhonePS['text']=info[0][8]
             self.lblMaritalPS['text']=info[0][7]
             self.lblChildPS['text']=info[0][6]
+            self.payeHoghogh=info[0][9]
             self.entDays.focus()
 
     def issuanceFunc(self):
+        haghMaskan=900000
+        bonRefahi=1100000
         self.days=self.entDays.get()
         self.date=self.entDate.get()
         self.overtime=self.entOvertime.get()
         self.closing=self.entHClosing.get()
         self.nightWork=self.entNightWork.get()
         self.id2=self.entSearchId.get()
-        self.controller.show_page(Payslip2)
+        paySlip2P = self.controller.pages[Payslip2]
+        
+        ezafeKari=int(self.payeHoghogh)/220*0.4*int(self.overtime)
+        tatilKari=int(self.payeHoghogh)/220*0.4*int(self.closing)
+        shabKari=int(self.payeHoghogh)/220*0.35*int(self.nightWork)
+        payeRozane=int(self.payeHoghogh)/int(self.days)
+        haghOlad=4170000*int(self.lblChildPS['text'])
+        payeSaati=int(payeRozane)/8
+        bimeKol=(int(self.payeHoghogh)+int(haghMaskan)+int(bonRefahi))*0.3
+        haghKarfarma=(int(self.payeHoghogh)+int(haghMaskan)+int(bonRefahi))*0.23
+        haghKargar=(int(self.payeHoghogh)+int(haghMaskan)+int(bonRefahi))*0.07
+        daramadHa=int(ezafeKari)+int(tatilKari)+int(shabKari)+int(haghOlad)+int(haghMaskan)+int(bonRefahi)
+        kosorat=int(haghKargar)
+        khalesPardakht=int(self.payeHoghogh)+int(daramadHa)-int(kosorat)
+        paySlip2P.lblNamePSP2['text']=self.lblNamePS['text']
+        paySlip2P.lblpersonnelIdPSP2['text']=self.id2
+        paySlip2P.lblbime['text']='''{:,}'''.format(int(bimeKol))
+        paySlip2P.lblHaghBimeK['text']='''{:,}'''.format(int(haghKargar))
+        paySlip2P.lblHaghBimeR['text']='''{:,}'''.format(int(haghKarfarma))
+        paySlip2P.dailyWage['text']='''{:,}'''.format(int(payeRozane))
+        paySlip2P.hourlyWage['text']='''{:,}'''.format(int(payeSaati))
+        paySlip2P.lblBonRefahi['text']='''{:,}'''.format(int(bonRefahi))
+        paySlip2P.lblHaghMskn['text']='''{:,}'''.format(int(haghMaskan))
+        paySlip2P.lblDays['text']='''{: <15}'''.format(self.days)
+        paySlip2P.lblDate['text']='''{: <15}'''.format(self.date)
+        paySlip2P.lblOvertime['text']='''{: <15}'''.format(self.overtime)
+        paySlip2P.lblHClosing['text']='''{: <15}'''.format(self.closing)
+        paySlip2P.lblNightWork['text']='''{: <15}'''.format(self.nightWork)
+        paySlip2P.lblKosorat['text']='''{:,}'''.format(int(kosorat))
+        paySlip2P.lblDaramad['text']='''{:,}'''.format(int(daramadHa))
+        paySlip2P.pardakhti['text']='''{:,}'''.format(int(khalesPardakht))
+        paySlip2P.controller.show_page(Payslip2)
+        self.entSearchId.delete(0,END)
+        self.entNightWork.delete(0,END)
+        self.entHClosing.delete(0,END)
+        self.entHClosing.delete(0,END)
+        self.entOvertime.delete(0,END)
+        self.entDate.delete(0,END)
+        self.entDays.delete(0,END)
+        self.lblNamePS['text']=''
+        self.lblMaritalPS['text']=''
+        self.lblChildPS['text']=''
+        self.lblPhonePS['text']=''
+        self.lblnationalPS['text']=''
+        self.entSearchId.focus()
         
         
 
@@ -233,6 +280,7 @@ class Payslip2(Page):
         Page.__init__(self, parent, controller)
         self.configure(bg='#B2B2B2')
         
+        self.homeImg=PhotoImage(file='images/homeImg.png')
         self.PaySlip2Bg=PhotoImage(file='images/bgpaySlip2.png')
         self.printImg=PhotoImage(file='images/printImg.png')  
         
@@ -256,8 +304,11 @@ class Payslip2(Page):
         self.lblKosorat=Label(self,text='',fg='#333333',font=('tahoma',24),bg='#EAEAEA')
         self.lblDaramad=Label(self,text='',fg='#333333',font=('tahoma',24),bg='#EAEAEA')
         self.pardakhti=Label(self,text='',fg='#EAEAEA',font=('tahoma',24),bg='#3C4048')
+        homeBtnPs=Button(self,image=self.homeImg,bg='#B2B2B2',activebackground='#B2B2B2',bd=0,cursor='hand2',
+                            command=lambda: controller.show_page(HomePage))
         
         bgPaySlip2.place(x=20,y=10)
+        homeBtnPs.place(x=650,y=642)
         self.lblNamePSP2.place(x=600,y=19)
         self.lblpersonnelIdPSP2.place(x=250,y=19)
         self.lblbime.place(x=620,y=110)
@@ -267,7 +318,7 @@ class Payslip2(Page):
         self.hourlyWage.place(x=50,y=152)
         self.lblBonRefahi.place(x=50,y=212)
         self.lblHaghMskn.place(x=50,y=270)
-        self.btnPrint.place(x=525,y=642)
+        self.btnPrint.place(x=490,y=642)
         self.lblKosorat.place(x=70,y=390)
         self.lblDaramad.place(x=70,y=460)
         self.pardakhti.place(x=70,y=555)
