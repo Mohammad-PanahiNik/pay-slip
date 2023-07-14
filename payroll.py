@@ -15,26 +15,29 @@ class Page(Frame):
 class HomePage(Page):
     def __init__(self, parent, controller):
         Page.__init__(self, parent, controller)
+        # self.personnel_P = PersonnelList()
         self.addListBtnImg = PhotoImage(file='images/list_img.png')
         self.addPersonnelImg = PhotoImage(file='images/add_personell_img.png')
-        self.payroll_img = PhotoImage(file='images/payroll_img.png')
+        self.payslip_img = PhotoImage(file='images/payroll_img.png')
         
         header_menu_lbl = LabelFrame(self,width=1200,height=80,bg='#BEC8CF',bd=5,relief='solid')
-        header_menu_txt = Label(self,text='PAYROLL',font=('B Titr',23,'bold'),bg='#BEC8CF')
+        header_menu_txt = Label(self,text='Pay Slip',font=('B Titr',23,'bold'),bg='#BEC8CF')
         self.btn_list = Button(self,width=400,height=620,image=self.addListBtnImg,bd=0,cursor='hand2',activebackground='#191818',
                                command=self.open_list)
         self.btn_add_personnel = Button(self,width=400,height=620,image=self.addPersonnelImg,bd=0,cursor='hand2',activebackground='#191818',
                                         command=lambda: controller.show_page(AddPersonnel))
-        self.btn_payroll = Button(self,width=400,height=620,image=self.payroll_img,bd=0,cursor='hand2',activebackground='#191818',
+        self.btn_payslip = Button(self,width=400,height=620,image=self.payslip_img,bd=0,cursor='hand2',activebackground='#191818',
                                   command=lambda: controller.show_page(Payslip))
         header_menu_txt.place(x=510,y=15)
         header_menu_lbl.place(x=0,y=0)
         self.btn_list.place(x=0,y=80)
         self.btn_add_personnel.place(x=400,y=80)
-        self.btn_payroll.place(x=800,y=80)
+        self.btn_payslip.place(x=800,y=80)
 
     def open_list(self):
-        self.data_to_list_personnel()
+        # self.personnel_P.data_to_list_personnel()
+        about_page = self.controller.pages[PersonnelList]
+        about_page.data_to_list_personnel()
         self.controller.show_page(PersonnelList)
 
 class AddPersonnel(Page):
@@ -280,7 +283,10 @@ class PersonnelList(Page):
         Page.__init__(self, parent, controller)
         self.configure(bg='#B2B2B2')
         self.style=ttk.Style()
+        self.homeImg=PhotoImage(file='images/homeImg.png')
         
+        homeBtnPs=Button(self,image=self.homeImg,bg='#B2B2B2',activebackground='#B2B2B2',bd=0,cursor='hand2',
+                            command=lambda: controller.show_page(HomePage))
         #list
         self.list_personnel= ttk.Treeview(self,show='headings',height=15)
         self.list_personnel['columns']=('e_contract','s_contract','Phone','NationalId','Name','id','row')
@@ -319,6 +325,28 @@ class PersonnelList(Page):
         
         
         self.list_personnel.place(x=20,y=70)
+        homeBtnPs.place(x=1120,y=15)
+    
+    def data_to_list_personnel(self):
+        count=0        
+        self.lst=[]
+        for item in self.list_personnel.get_children():
+            self.list_personnel.delete(item)
+        self.con=sql.connect('mydb.db')
+        self.cur=self.con.cursor()
+        self.cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='personnel'")
+        
+        self.result = self.cur.fetchone()
+        if self.result != None:
+            
+            row=self.cur.execute('SELECT * FROM personnel')
+            for i in row :
+                self.lst.append(i)
+            
+            for i in self.lst:
+                self.list_personnel.insert(parent='',index='end',text='',
+                                    values=(i[12],i[11],i[8],i[2],i[1],i[0],str(count+1)))
+                count += 1
         
 
 class MyApp(Tk):
