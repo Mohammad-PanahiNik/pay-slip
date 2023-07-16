@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import filedialog
 import sqlite3 as sql
 from tkinter import ttk
+from PIL import ImageTk, Image
 from tkinter import messagebox
 
 class Page(Frame):
@@ -15,7 +16,6 @@ class Page(Frame):
 class HomePage(Page):
     def __init__(self, parent, controller):
         Page.__init__(self, parent, controller)
-        # self.personnel_P = PersonnelList()
         self.addListBtnImg = PhotoImage(file='images/list_img.png')
         self.addPersonnelImg = PhotoImage(file='images/add_personell_img.png')
         self.payslip_img = PhotoImage(file='images/payroll_img.png')
@@ -49,7 +49,7 @@ class AddPersonnel(Page):
         self.profileImg = PhotoImage(file='images/profile.png')
 
         bgRegister = Label(self,image=self.bgRegisterImg,bg='#B2B2B2')
-        self.jayAks = Label(bgRegister,image=self.profileImg,bd=2)
+        self.imgSelectorBg_kala = Label(bgRegister,image=self.profileImg,bd=2)
         self.entPersonnelID = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
         self.entNameRegister = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
         self.entNationalCode = Entry(bgRegister,font=('Tahoma',13),justify='right',bd=0,bg='#B2B2B2')
@@ -69,7 +69,7 @@ class AddPersonnel(Page):
                          command=lambda: controller.show_page(HomePage))
         
         bgRegister.place(x=12,y=10)
-        self.jayAks.place(x=40,y=30)
+        self.imgSelectorBg_kala.place(x=40,y=30)
         self.entPersonnelID.place(x=825,y=82)
         self.entNameRegister.place(x=655,y=183)
         self.entNationalCode.place(x=655,y=247)
@@ -100,10 +100,23 @@ class AddPersonnel(Page):
         self.entContractType.bind('<Return>',lambda event :self.entSofContract.focus())
         self.entSofContract.bind('<Return>',lambda event :self.entEofContract.focus())
         self.entEofContract.bind('<Return>',lambda event :self.btnSaveInfo.focus())
+    
+        self.imgSelectorBg_kala.bind('<Button-1>', self.funcAddImg_kala)
         self.btnSaveInfo.bind('<Return>',self.funcSaveInfo)
         # self.btnSaveInfo.bind('<Button-1>',self.funcSaveInfo)
-        # self.jayAks.bind('<Button-1>',self.funcAks)
 
+    def funcAddImg_kala(self,event=None):
+        self.img_name = filedialog.askopenfilename()
+        self.procuct_img = Image.open(self.img_name)
+        self.procuct_image = self.procuct_img.resize((100, 100))
+        self.product_photo = ImageTk.PhotoImage(self.procuct_image)
+        self.imgSelectorBg_kala['image']=self.product_photo
+    
+    def covert_to_binary_data(self,filename):
+        with open (filename , 'rb') as f:
+            blobdata = f.read()
+        return blobdata
+       
     def funcSaveInfo(self,event=None):
         PersonnelID = self.entPersonnelID.get()
         NameRegister = self.entNameRegister.get()
@@ -118,16 +131,17 @@ class AddPersonnel(Page):
         ContractType = self.entContractType.get()
         SofContract = self.entSofContract.get()
         EofContract = self.entEofContract.get()
+        photo = self.covert_to_binary_data(self.img_name)
         
         self.con=sql.connect('mydb.db')
         self.cur=self.con.cursor()
         data=(PersonnelID,NameRegister,NationalCode,Father,Born,Shenasname,Children,MaritalStatus,Phone,
-                        SalaryBase,ContractType,SofContract,EofContract)
+                        SalaryBase,ContractType,SofContract,EofContract,photo)
         self.cur.execute('''CREATE TABLE IF NOT EXISTS personnel (id TEXT PRIMARY KEY,name TEXT,nationalId TEXT,father TEXT
                          ,born TEXT,shenasname TEXT,children TEXT,marital_status TEXT,phone TEXT,salary_base TEXT,
-                         contract_type TEXT,start_of_contract TEXT,end_of_contract TEXT)''')
+                         contract_type TEXT,start_of_contract TEXT,end_of_contract TEXT,photo BLOB NOT NULL)''')
         self.cur.execute('''INSERT INTO personnel(id,name,nationalId,father,born,shenasname,children,marital_status,phone
-                         ,salary_base,contract_type,start_of_contract,end_of_contract) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)''',data)
+                         ,salary_base,contract_type,start_of_contract,end_of_contract,photo) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',data)
         self.con.commit()
         
         self.entPersonnelID.delete(0,END)
@@ -143,6 +157,7 @@ class AddPersonnel(Page):
         self.entContractType.delete(0,END)
         self.entSofContract.delete(0,END)
         self.entEofContract.delete(0,END)
+        self.imgSelectorBg_kala['image']=self.profileImg
         self.entPersonnelID.focus()
         
     
@@ -233,14 +248,14 @@ class Payslip(Page):
         tatilKari=int(self.payeHoghogh)/220*0.4*int(self.closing)
         shabKari=int(self.payeHoghogh)/220*0.35*int(self.nightWork)
         payeRozane=int(self.payeHoghogh)/int(self.days)
-        haghOlad=4170000*int(self.lblChildPS['text'])
+        haghOlad=530000*int(self.lblChildPS['text'])
         payeSaati=int(payeRozane)/8
         bimeKol=(int(self.payeHoghogh)+int(haghMaskan)+int(bonRefahi))*0.3
-        haghKarfarma=(int(self.payeHoghogh)+int(haghMaskan)+int(bonRefahi))*0.23
-        haghKargar=(int(self.payeHoghogh)+int(haghMaskan)+int(bonRefahi))*0.07
-        daramadHa=int(ezafeKari)+int(tatilKari)+int(shabKari)+int(haghOlad)+int(haghMaskan)+int(bonRefahi)
+        haghKarfarma=int(self.payeHoghogh)*0.23
+        haghKargar=int(self.payeHoghogh)*0.07
+        daramadHa=int(self.payeHoghogh)+int(ezafeKari)+int(tatilKari)+int(shabKari)+int(haghOlad)+int(haghMaskan)+int(bonRefahi)
         kosorat=int(haghKargar)
-        khalesPardakht=int(self.payeHoghogh)+int(daramadHa)-int(kosorat)
+        khalesPardakht=int(daramadHa)-int(kosorat)
         paySlip2P.lblNamePSP2['text']=self.lblNamePS['text']
         paySlip2P.lblpersonnelIdPSP2['text']=self.id2
         paySlip2P.lblbime['text']='''{:,}'''.format(int(bimeKol))
